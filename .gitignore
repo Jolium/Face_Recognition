@@ -1,0 +1,9 @@
+# Ignore everything:
+*
+
+# Except for:
+!recognition.py
+!images/Obama.jpg
+!requirements.txt
+!README.md
+!.gitignore
