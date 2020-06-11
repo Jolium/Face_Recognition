@@ -1,59 +1,25 @@
 import face_recognition
 import cv2
 import numpy as np
-import os
 
+import encoder
+import settings as sets
 
-# This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
-# other example, but it includes some basic performance tweaks to make things run a lot faster:
-#   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
-#   2. Only detect faces in every other frame of video.
-
-# PLEASE NOTE: This example requires OpenCV (the `cv2` library) to be installed only to read from your webcam.
-# OpenCV is *not* required to use the face_recognition library. It's only required if you want to run this
-# specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
-
-# Global vars
-path = 'images/'
-allowed_formats = ('.jpg', '.png')
-
-# webcam vars
-frame_width = 640
-frame_height = 480
 
 # Get a reference to webcam
-video_capture = cv2.VideoCapture(0)  # '0' is the standard webcam
-video_capture.set(3, frame_width)  # Width of the frames in the video stream
-video_capture.set(4, frame_height)  # Height of the frames in the video stream
-# video_capture.set(5, 30) # Frame rate
-# video_capture.set(10, 150)  # Brightness of the image
-# video_capture.set(11, 150)  # Contrast of the image
-# video_capture.set(12, 150)  # Saturation of the image
-# video_capture.set(13, 150)  # Hue of the image
-# video_capture.set(14, 150)  # Gain of the image
-# video_capture.set(15, 150)  # Exposure
+video_capture = cv2.VideoCapture(0)         # '0' is the standard webcam
+video_capture.set(3, sets.frame_width)      # Width of the frames in the video stream
+video_capture.set(4, sets.frame_height)     # Height of the frames in the video stream
+# video_capture.set(5, sets.frame_rate)       # Frame rate
+# video_capture.set(10, sets.brightness)      # Brightness of the image
+# video_capture.set(11, sets.contrast)        # Contrast of the image
+# video_capture.set(12, sets.saturation)      # Saturation of the image
+# video_capture.set(13, sets.hue)             # Hue of the image
+# video_capture.set(14, sets.gain)            # Gain of the image
+# video_capture.set(15, sets.exposure)        # Exposure
 
-#########################################################################
-
-# Create arrays of known face encodings
-img_list = os.listdir(path)
-known_face_encodings = []
-for i in img_list:
-    known_image = face_recognition.load_image_file(path + i)
-    known_face_encoding = face_recognition.face_encodings(known_image)
-    known_face_encodings.extend(known_face_encoding)
-
-##########################################################################
-
-# # Create arrays of known face names
-# known_face_names = [os.path.splitext(i)[0] for i in img_list]
-
-known_face_names = []
-for item in img_list:
-    name = os.path.splitext(item)
-    known_face_names.append(name[0])
-
-############################################################################
+# Import encodings and names from json files
+known_face_encodings, known_face_names = encoder.importFromJson()
 
 # Initialize some variables
 face_locations = []
@@ -117,7 +83,7 @@ while True:
         cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.8, (255, 255, 255), 1)
 
     # Display the resulting image
-    cv2.imshow('Video', frame)
+    cv2.imshow('Camera', frame)
 
     # Hit 'q' on the keyboard to quit!
     if cv2.waitKey(1) & 0xFF == ord('q'):
