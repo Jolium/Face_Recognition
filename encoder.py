@@ -8,6 +8,12 @@ import numpy as np
 import os
 
 import settings as sets
+import check_hash
+
+
+folder_path = sets.folder_path
+allowed_formats = sets.allowed_formats
+database = sets.database
 
 
 class NumpyArrayEncoder(json.JSONEncoder):
@@ -26,7 +32,7 @@ def importFromJson():
     """Import all data from .json files"""
 
     # Deserialization (JSON file into Numpy Array)
-    with open('database.json', 'r', encoding='utf-8') as db:
+    with open(database, 'r', encoding='utf-8') as db:
         data = json.load(db)
         encodings = np.asarray(data["array"])
 
@@ -40,22 +46,25 @@ def importFromJson():
 def _exportToJson(face_encodings, names):
     """Export all data to .json files"""
 
+    # Get hash of the folder 'images'
+    folder_hash = check_hash.hash_directory()
+
     # Serialization (NumPy Array into JSON file)
     data = {"array": face_encodings}
-    with open('database.json', 'w', encoding='utf-8') as db:
+    with open(database, 'w', encoding='utf-8') as db:
         json.dump(data, db, cls=NumpyArrayEncoder, ensure_ascii=False, indent=2)
 
     # Creates a file with all names of known faces
-    data = {"names": names}
+    data = {"names": names, "hash": folder_hash}
     with open('known_faces.json', 'w', encoding='utf-8') as db:
         json.dump(data, db, cls=NumpyArrayEncoder, ensure_ascii=False, indent=2)
 
 
-def createData(path=sets.path):
+def createData(path=folder_path):
     """Create lists to be exported to .json files"""
 
     images = os.listdir(path)
-    formats = sets.allowed_formats
+    formats = allowed_formats
     known_face_encodings = []
     known_face_names = []
     for i in images:
@@ -69,7 +78,7 @@ def createData(path=sets.path):
             name = os.path.splitext(i)
             known_face_names.append(name[0])
 
-    if path == sets.path:
+    if path == folder_path:
         _exportToJson(known_face_encodings, known_face_names)
     else:
         return known_face_encodings, known_face_names
@@ -81,24 +90,18 @@ def updateData(path):
     face_encodings, names = createData(path=path)
 
     # Append to database.json
-    with open('database.json', encoding='utf-8') as db:
+    with open(database, 'r', encoding='utf-8') as db:
         data = json.load(db)
         temp_face_encodings = data['array']
         temp_face_encodings.extend(face_encodings)
 
-    # Append to known_faces.json
-    with open('known_faces.json', encoding='utf-8') as db:
+    # Add new names to the list of names
+    with open('known_faces.json', 'r', encoding='utf-8') as db:
         data = json.load(db)
         temp_name = data['names']
         temp_name.extend(names)
+        temp_data = {}
+        for key in data:
+            temp_data[key] = data[key]
 
-    _exportToJson(temp_face_encodings, temp_name)
-
-
-if __name__ == '__main__':
-    # # Create database
-    # createData()
-
-    # # Update database ( path='folder/with/new_pictures/' )
-    # updateData(path='img/')
-    pass
+    _exportToJson(temp_face_encodings, temp_data)
