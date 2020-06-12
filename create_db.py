@@ -1,12 +1,14 @@
 import encoder
 
 """
-Create your initial database with your own pictures.
-Drop your picture in the folder images.
+For manually create a database
+Drop your pictures in the folder 'images'
+Create database with your own pictures
 """
 if __name__ == '__main__':
     # Create database
-    encoder.createData()
+    encoder.create_database()
 
-    # # Update database adding a new folder ( path='folder/with/new_pictures/' )
-    # encoder.updateData(path='img/')
+    # # Update database adding a non standard folder
+    # new_path = './folder/with/new_pictures/'
+    # encoder.update_database(path=new_path)

@@ -1,9 +1,11 @@
 import face_recognition
 import cv2
 import numpy as np
+import os.path
 
 import encoder
 import settings as sets
+import hash_sha1
 
 
 # Get a reference to webcam
@@ -18,8 +20,19 @@ video_capture.set(4, sets.frame_height)     # Height of the frames in the video 
 # video_capture.set(14, sets.gain)            # Gain of the image
 # video_capture.set(15, sets.exposure)        # Exposure
 
+# Create database if it does not exist
+if not os.path.isfile(sets.database):
+    encoder.create_database()
+
+# Create folder 'images' if it does not exist
+if not os.path.isdir(sets.folder_path):
+    os.mkdir(sets.folder_path)
+
+# Check if are changes in the folder 'images'
+hash_sha1.compare_hashes()
+
 # Import encodings and names from json files
-known_face_encodings, known_face_names = encoder.importFromJson()
+known_face_encodings, known_face_names = encoder.import_from_database()
 
 # Initialize some variables
 face_locations = []
