@@ -5,6 +5,7 @@
 !recognition.py
 !encoder.py
 !create_db.py
+!hash_sha1.py
 !images/Obama.jpg
 !requirements.txt
 !README.md
